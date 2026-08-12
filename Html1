@@ -4,7 +4,7 @@
     
 </head>
     <body>
-        <h1 style="background-color:blue">My HTML Tags Mini project</h1>
+        <h1 style="background-color:blue; text-align:center">My HTML Tags Mini project</h1>
         <h2 style="color:blue">1.Heading Tags(h1 to h6)</h2>
         <h1>This is heading 1</h1>
         <h2>This is heading 2</h2>
@@ -28,15 +28,17 @@ course:B.tech cse.
 Year :1<sup>st</sup> year
         </pre>
 <h2 style="color:lightslategray">4. Text Formatting Tag</h2>
-<p> <b>Bold text</b>using the b tag</p>
-<p> <strong>strong(important)text</strong>using the strong tag</p>
-<p> <i>Italic text</i>using the i tag</p>
-<p> <em>Emphasized text</em>using the em tag</p>
-<p> <small>small text</small>using the small tag</p>
-<p> Water formula: H<sub>2</sub>O using the sub tag</p>
-<p>Einstein's equation: E=mc<sup>2</sup> using the sup tag</p>
-<p> <u><ins> inserted text</ins></u> using the ins tag(show an underline)</p>
-<p> <s><del>Deleted text</del></s> using the del tag</p>
+<pre> <b>Bold text</b>using the b tag
+ <strong>strong(important)text</strong>using the strong tag
+ <i>Italic text</i>using the i tag
+ <em>Emphasized text</em>using the em tag
+ <small>small text</small>using the small tag
+ Water formula: H<sub>2</sub>O using the sub tag
+Einstein's equation: E=mc<sup>2</sup> using the sup tag
+ <u><ins> inserted text</ins></u> using the ins tag(show an underline)
+ <s><del>Deleted text</del></s> using the del tag
 <mark>Highlighted text using the mark tag. </mark>
+</pre>
+<h3 style="background-color:lightblue; text-align:center">Thank You for Viewing My Project!</h3>
     </body>
 </html>
