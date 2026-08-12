@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+    
+</head>
+    <body>
+        <h1 style="background-color:blue">My HTML Tags Mini project</h1>
+        <h2 style="color:blue">1.Heading Tags(h1 to h6)</h2>
+        <h1>This is heading 1</h1>
+        <h2>This is heading 2</h2>
+        <h3>This is heading 3</h3>
+        <h4>This is heading 4</h4>
+        <h5>This is heading 5</h5>
+        <h6>This is heading 6</h6>
+        <hr>
+        <h2 style="color:navyblue">2.Paragraph and Line break</h2>
+        <p style="background-color:lightskyblue">This is a paragraph tag. I am Hitesh, a first-year B.Tech student at Vignan University. This <br>project shows how different HTML tags work together to format text on a webpage. </p>
+        <pre>First line of text.
+Second line after a line break tag.
+Third line after another line break. 
+        </pre>
+        <hr>
+        <h2 style="color:lightblue">preformatted Text</h2>
+        <pre style="background-color:black; color:green">
+Roll no:25xxxx.
+Name  :Hitesh.
+course:B.tech cse.
+Year :1<sup>st</sup> year
+        </pre>
+<h2 style="color:lightslategray">4. Text Formatting Tag</h2>
+<p> <b>Bold text</b>using the b tag</p>
+<p> <strong>strong(important)text</strong>using the strong tag</p>
+<p> <i>Italic text</i>using the i tag</p>
+<p> <em>Emphasized text</em>using the em tag</p>
+<p> <small>small text</small>using the small tag</p>
+<p> Water formula: H<sub>2</sub>O using the sub tag</p>
+<p>Einstein's equation: E=mc<sup>2</sup> using the sup tag</p>
+<p> <u><ins> inserted text</ins></u> using the ins tag(show an underline)</p>
+<p> <s><del>Deleted text</del></s> using the del tag</p>
+<mark>Highlighted text using the mark tag. </mark>
+    </body>
+</html>
