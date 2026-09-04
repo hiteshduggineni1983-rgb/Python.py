@@ -1,0 +1,14 @@
+#include <stdio.h>
+
+int main() {
+    int marks;
+
+    do {
+        printf("Enter marks: ");
+        scanf("%d", &marks);
+    } while (marks >= 0);
+
+    printf("Stopped.");
+
+    return 0;
+}
