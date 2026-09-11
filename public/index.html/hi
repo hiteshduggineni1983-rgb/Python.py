@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1018">
+<title>CROWN — Chess with Friends</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1018;
+  --panel: #151f2e;
+  --border: #304158;
+  --gold: #efd08a;
+  --cyan: #24acc5;
+  --text: #edf2fa;
+  --muted: #98a9bf;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 25% 10%, #23385399, transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+button, input, select { font: inherit; }
+
+button, input, select {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: var(--text);
+  background: #1c293c;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: filter .15s, transform .15s;
+}
+
+button:hover { filter: brightness(1.15); }
+button:active { transform: scale(.97); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+input, select { width: 100%; }
+label { display: block; margin: 12px 0; }
+label span { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; }
+
+h1, h2, h3, p { margin-top: 0; }
+h1 { letter-spacing: .13em; font-size: 34px; margin-bottom: 0; }
+h1 span { color: var(--gold); }
+h2 { font-size: 23px; }
+small, .muted { color: var(--muted); }
+
+.app { max-width: 1130px; padding: 24px; margin: auto; }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.brand-sub {
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--muted);
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.card {
+  background: linear-gradient(135deg, #1b283bef, #111a28ef);
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  padding: 23px;
+  box-shadow: 0 15px 40px #0003;
+}
+
+.auth-card { max-width: 440px; margin: 50px auto; }
+
+.crest {
+  font-size: 60px;
+  color: var(--gold);
+  text-align: center;
+  text-shadow: 0 0 35px #efd08a44;
+}
+
+.primary {
+  background: linear-gradient(120deg, #f4d995, #cea050);
+  color: #28200f;
+  border-color: #ffe1a5;
+  font-weight: 800;
+}
+
+.wide { width: 100%; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row > * { flex: 1; }
+.tabs { margin: 20px 0; }
+.tabs button.active { border-color: var(--gold); color: var(--gold); }
+
+.hidden { display: none !important; }
+
+.lobby-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+}
+
+.eyebrow {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  margin-bottom: 9px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 22px 0;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 10px 5px; border-bottom: 1px solid #ffffff0b; }
+th { color: var(--muted); font-size: 11px; }
+td:last-child { color: var(--gold); font-weight: 800; }
+
+.game-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 28px;
+  align-items: start;
+}
+
+.arena { min-width: 0; }
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 8px 10px;
+}
+
+.player-name { font-weight: 750; }
+.player-label { font-size: 11px; color: var(--muted); }
+
+.clock {
+  font-size: clamp(24px, 3vw, 35px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .03em;
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #111a28;
+  color: var(--muted);
+}
+
+.clock.active {
+  color: var(--gold);
+  background: #efd08a12;
+  border-color: #b09358;
+  box-shadow: 0 0 20px #efd08a0c;
+}
+
+.clock.low { color: #ff8c86; border-color: #ab514d; }
+
+.stage {
+  perspective: 1100px;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 12px 0 27px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 7px;
+  border-radius: 8px;
+  border: 2px solid #65778e;
+  background: #27354b;
+  transform: rotateX(18deg);
+  transform-style: preserve-3d;
+  box-shadow:
+    0 7px #1e2b40,
+    0 14px #142034,
+    0 18px #35455d,
+    0 34px 40px #0008;
+  user-select: none;
+}
+
+.square {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: 1;
+  background: #73869c;
+  transform-style: preserve-3d;
+}
+
+.square:hover { filter: none; }
+.square:active { transform: none; }
+.square.dark { background: #2d405a; }
+.square.last { background: #859174; }
+.square.dark.last { background: #496658; }
+.square.selected { background: #b79554; }
+.square.check { background: #ad545e; }
+
+.square.legal::before {
+  content: "";
+  position: absolute;
+  width: 22%;
+  height: 22%;
+  background: #fff0bbb0;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ffe4a455;
+  pointer-events: none;
+}
+
+.square.capture::before {
+  width: 87%;
+  height: 87%;
+  background: transparent;
+  border: 3px solid #ffe2a0;
+}
+
+.square.cursor::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid #d8f8ff;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.piece {
+  width: 89%;
+  height: 95%;
+  display: grid;
+  place-items: center;
+  font: 66px/1 "Georgia", "Times New Roman", serif;
+  font-size: clamp(29px, 6vw, 65px);
+  transform: translateZ(12px) rotateX(-18deg);
+  color: var(--gold);
+  text-shadow:
+    1px 1px #b58b44,
+    2px 2px #8f682d,
+    3px 3px #725323,
+    4px 5px 2px #0009;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.piece.black {
+  color: #83bbcc;
+  text-shadow:
+    1px 1px #4c8196,
+    2px 2px #305769,
+    3px 3px #1b3545,
+    4px 5px 2px #000b;
+}
+
+.coord {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 9px;
+  color: #eff7ff99;
+  pointer-events: none;
+}
+
+.side { display: grid; gap: 14px; }
+.side .card { padding: 18px; }
+
+#status { font-size: 23px; margin-bottom: 7px; }
+#statusText { color: var(--muted); font-size: 13px; }
+
+.room-code {
+  font-family: ui-monospace, monospace;
+  font-size: 22px;
+  letter-spacing: .08em;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+#moveLog {
+  max-height: 170px;
+  overflow: auto;
+  font: 13px/1.9 ui-monospace, monospace;
+  color: #bdcadb;
+  white-space: pre-wrap;
+}
+
+.help {
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+#toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  background: #22334a;
+  color: var(--text);
+  border: 1px solid #607c9d;
+  border-radius: 12px;
+  padding: 12px 18px;
+  box-shadow: 0 10px 35px #0008;
+  max-width: min(92vw, 560px);
+}
+
+dialog {
+  color: var(--text);
+  border: 1px solid #62728b;
+  border-radius: 20px;
+  padding: 28px;
+  width: min(440px, 92vw);
+  background: #182439;
+  box-shadow: 0 20px 80px #0009;
+}
+
+dialog::backdrop {
+  background: #070e1bcc;
+  backdrop-filter: blur(7px);
+}
+
+.promotion-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+.promotion-options button { font-size: 39px; color: var(--gold); }
+.promotion-options small { display: block; font-size: 10px; }
+
+#fx {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.flying-piece {
+  position: fixed;
+  display: grid;
+  place-items: center;
+  z-index: 99;
+  pointer-events: none;
+  font-family: Georgia, serif;
+  line-height: 1;
+  text-shadow: 2px 3px #70552d, 4px 7px 4px #0008;
+}
+
+.shake { animation: shake .25s ease-out; }
+@keyframes shake {
+  20% { translate: -4px 2px; }
+  45% { translate: 4px -3px; }
+  70% { translate: -2px 1px; }
+}
+
+@media (max-width: 800px) {
+  .app { padding: 15px; }
+  .game-grid, .lobby-grid { grid-template-columns: 1fr; }
+  .side { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .history-card { display: none; }
+  .piece { font-size: clamp(28px, 8vw, 61px); }
+  .clock { font-size: 27px; }
+  header { margin-bottom: 18px; }
+  h1 { font-size: 26px; }
+  #accountName { display: none; }
+}
+
+@media (max-width: 420px) {
+  .side { grid-template-columns: 1fr; }
+  .card { padding: 18px; }
+  .auth-card { margin-top: 25px; }
+  .player-name { max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>CROWN<span> // </span></h1>
+      <div class="brand-sub">FRIENDS. RIVALS. KINGS.</div>
+    </div>
+    <div class="header-right">
+      <small id="accountName"></small>
+      <button id="soundButton" aria-pressed="true">♪ On</button>
+      <button id="logoutButton" class="hidden">Sign out</button>
+    </div>
+  </header>
+
+  <section id="authScreen" class="card auth-card">
+    <div class="crest">♔</div>
+    <h2 style="text-align:center">Your next rivalry starts here.</h2>
+    <p class="muted" style="text-align:center">Sign in, invite a friend, take the throne.</p>
+
+    <div class="row tabs">
+      <button id="emailTab" class="active">Email</button>
+      <button id="phoneTab">Phone number</button>
+    </div>
+
+    <form id="emailForm">
+      <label>
+        <span>Email address</span>
+        <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      </label>
+      <label>
+        <span>Password</span>
+        <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+      </label>
+      <div class="row">
+        <button class="primary" type="submit">Sign in</button>
+        <button id="registerButton" type="button">Create account</button>
+      </div>
+      <button id="resetButton" type="button" class="wide" style="margin-top:10px">Reset password</button>
+    </form>
+
+    <form id="phoneForm" class="hidden">
+      <label>
+        <span>Phone number, including country code</span>
+        <input id="phone" type="tel" autocomplete="tel" placeholder="+1 555 123 4567" required>
+      </label>
+      <div id="recaptcha"></div>
+      <button class="primary wide" type="submit" style="margin-top:12px">Send verification code</button>
+
+      <div id="smsSection" class="hidden">
+        <label>
+          <span>SMS verification code</span>
+          <input id="smsCode" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+        </label>
+        <button id="verifyButton" type="button" class="primary wide">Verify & sign in</button>
+      </div>
+
+      <p style="margin-top:15px"><small>By continuing, you agree to receive an authentication SMS. Carrier charges may apply.</small></p>
+    </form>
+  </section>
+
+  <section id="lobbyScreen" class="hidden">
+    <div class="lobby-grid">
+      <div class="card">
+        <div class="eyebrow">Private multiplayer</div>
+        <h2>Challenge a friend</h2>
+        <p class="muted">Create a room and share its link. You play White in the first game.</p>
+
+        <label>
+          <span>Player name</span>
+          <input id="playerName" maxlength="24" placeholder="Your chess name">
+        </label>
+
+        <label>
+          <span>Time control</span>
+          <select id="control">
+            <option value="rapid">Rapid — 15 minutes + 10 seconds per move</option>
+            <option value="blitz">Blitz — 5 minutes + 3 seconds per move</option>
+          </select>
+        </label>
+
+        <button id="createButton" class="primary wide">Create friend room →</button>
+
+        <div class="divider"></div>
+
+        <label>
+          <span>Have an invitation? Enter the room code</span>
+          <input id="joinCode" maxlength="10" autocapitalize="characters" spellcheck="false" placeholder="A1B2C3D4E5">
+        </label>
+
+        <div class="row">
+          <button id="joinButton">Join room</button>
+          <button id="reconnectButton">Reconnect</button>
+        </div>
+
+        <p style="margin-top:17px"><small>
+          Live clocks keep running if you close the page or disconnect.
+          Results: win 1 · draw ½ · loss 0.
+        </small></p>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Persistent standings</div>
+        <h2>Hall of Crowns</h2>
+        <p class="muted">Total game points — not Elo ratings.</p>
+
+        <table>
+          <thead>
+            <tr><th>Player</th><th>W / D / L</th><th>Points</th></tr>
+          </thead>
+          <tbody id="leaderboard"></tbody>
+        </table>
+
+        <p style="margin-top:18px"><small>
+          Friendly results only. Repeated games count; this is not an
+          anti-collusion or federation ranking system.
+        </small></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="gameScreen" class="hidden">
+    <div class="game-grid">
+      <div class="arena" id="arena">
+        <div class="player-bar">
+          <div>
+            <div id="topName" class="player-name">Opponent</div>
+            <div id="topLabel" class="player-label">Black</div>
+          </div>
+          <div id="topClock" class="clock">15:00</div>
+        </div>
+
+        <div class="stage">
+          <div
+            id="board"
+            class="board"
+            role="grid"
+            tabindex="0"
+            aria-label="Chessboard. Use arrow keys to navigate and Enter to select or move."
+          ></div>
+        </div>
+
+        <div class="player-bar">
+          <div>
+            <div id="bottomName" class="player-name">You</div>
+            <div id="bottomLabel" class="player-label">White</div>
+          </div>
+          <div id="bottomClock" class="clock">15:00</div>
+        </div>
+
+        <p class="help">
+          Tap a piece, then a glowing square · Arrow keys + Enter on keyboard
+        </p>
+      </div>
+
+      <aside class="side">
+        <div class="card">
+          <div class="eyebrow" id="controlLabel">Live chess</div>
+          <h2 id="status" aria-live="polite">Waiting for a friend</h2>
+          <p id="statusText"></p>
+
+          <div id="activeActions" class="hidden">
+            <button id="drawButton" class="wide">Offer draw</button>
+            <button id="resignButton" class="wide" style="margin-top:9px">Resign</button>
+          </div>
+
+          <div id="drawActions" class="hidden" style="margin-top:12px">
+            <p class="muted">Your opponent offers a draw.</p>
+            <div class="row">
+              <button id="acceptDraw" class="primary">Accept</button>
+              <button id="declineDraw">Decline</button>
+            </div>
+          </div>
+
+          <div id="finishedActions" class="hidden">
+            <button id="rematchButton" class="primary wide">Rematch · swap colors</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="eyebrow">Friend room</div>
+          <div id="roomCode" class="room-code"></div>
+          <button id="copyButton" class="wide">Copy invite link</button>
+          <button id="lobbyButton" class="wide" style="margin-top:9px">Back to lobby</button>
+          <p style="margin:12px 0 0"><small id="connection">Connected</small></p>
+        </div>
+
+        <div class="card history-card">
+          <div class="eyebrow">Battle chronicle</div>
+          <div id="moveLog">The opening awaits.</div>
+          <div class="divider"></div>
+          <small>Checkmate wins the game. Captured pieces do not add match points.</small>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<dialog id="promotionDialog">
+  <div class="eyebrow">Promotion</div>
+  <h2>Choose your new piece</h2>
+  <p class="muted">Your clock continues while choosing.</p>
+  <div class="promotion-options">
+    <button data-promotion="q">♛<small>QUEEN · Q</small></button>
+    <button data-promotion="r">♜<small>ROOK · R</small></button>
+    <button data-promotion="b">♝<small>BISHOP · B</small></button>
+    <button data-promotion="n">♞<small>KNIGHT · N</small></button>
+  </div>
+</dialog>
+
+<dialog id="confirmDialog">
+  <h2 id="confirmTitle"></h2>
+  <p id="confirmText" class="muted"></p>
+  <div class="row">
+    <button id="confirmCancel">Cancel</button>
+    <button id="confirmOK" class="primary">Confirm</button>
+  </div>
+</dialog>
+
+<div id="toast" class="hidden" role="status"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+import {
+  getFunctions,
+  httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
+
+import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.4.0/+esm";
+
+/* Replace with Firebase Console → Project settings → Your apps → Web app. */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const functions = getFunctions(app, "us-central1");
+
+const $ = id => document.getElementById(id);
+const glyphs = { k:"♚", q:"♛", r:"♜", b:"♝", n:"♞", p:"♟" };
+const pieceNames = { k:"king", q:"queen", r:"rook", b:"bishop", n:"knight", p:"pawn" };
+const files = "abcdefgh";
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let user = null;
+let room = null;
+let roomCode = "";
+let roomUnsubscribe = null;
+let leaderboardUnsubscribe = null;
+let chess = new Chess();
+let selected = null;
+let cursor = 52;
+let keyboardMode = false;
+let pending = false;
+let animationBusy = false;
+let roomWatchVersion = 0;
+let serverOffset = 0;
+let lastFlagCheck = 0;
+let confirmation = null;
+let recaptcha = null;
+let promotion = null;
+let audio = null;
+let soundEnabled = true;
+let toastTimeout;
+let boardSquares = [];
+let squareElements = new Map();
+
+function toast(message) {
+  $("toast").textContent = message;
+  $("toast").classList.remove("hidden");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => $("toast").classList.add("hidden"), 4500);
+}
+
+function report(error) {
+  console.error(error);
+  toast(String(error.message || "Something went wrong.")
+    .replace(/^Firebase:\s*/, "")
+    .replace(/\s*\(.*?\)\.?$/, ""));
+}
+
+async function guarded(task) {
+  try {
+    await task();
+  } catch (error) {
+    report(error);
+  }
+}
+
+async function call(name, data) {
+  const started = Date.now();
+  const response = await httpsCallable(functions, name)(data);
+  const ended = Date.now();
+
+  if (response.data.serverNow) {
+    // Approximation is only for display. The backend decides flag fall.
+    serverOffset = response.data.serverNow - (started + ended) / 2;
+  }
+
+  return response.data;
+}
+
+function showScreen(name) {
+  for (const screen of ["authScreen", "lobbyScreen", "gameScreen"]) {
+    $(screen).classList.toggle("hidden", screen !== name);
+  }
+}
+
+function mySide() {
+  if (!room || !user) return "w";
+  return room.white.uid === user.uid ? "w" : "b";
+}
+
+function myTurn() {
+  return room?.status === "active" && room.turn === mySide();
+}
+
+function storageGet(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function storageSet(key, value) {
+  try { localStorage.setItem(key, value); } catch {}
+}
+
+/* Authentication */
+$("emailTab").onclick = () => {
+  $("emailForm").classList.remove("hidden");
+  $("phoneForm").classList.add("hidden");
+  $("emailTab").classList.add("active");
+  $("phoneTab").classList.remove("active");
+};
+
+$("phoneTab").onclick = () => {
+  $("phoneForm").classList.remove("hidden");
+  $("emailForm").classList.add("hidden");
+  $("phoneTab").classList.add("active");
+  $("emailTab").classList.remove("active");
+
+  if (!recaptcha) {
+    guarded(async () => {
+      recaptcha = new RecaptchaVerifier(auth, "recaptcha", {
+        size: "normal"
+      });
+      await recaptcha.render();
+    });
+  }
+};
+
+$("emailForm").onsubmit = event => {
+  event.preventDefault();
+  guarded(() => signInWithEmailAndPassword(
+    auth,
+    $("email").value.trim(),
+    $("password").value
+  ));
+};
+
+$("registerButton").onclick = () => guarded(async () => {
+  if (!$("emailForm").reportValidity()) return;
+
+  await createUserWithEmailAndPassword(
+    auth,
+    $("email").value.trim(),
+    $("password").value
+  );
+});
+
+$("resetButton").onclick = () => guarded(async () => {
+  const email = $("email").value.trim();
+  if (!email) return toast("Enter your email address first.");
+
+  await sendPasswordResetEmail(auth, email);
+  toast("Password-reset request sent. Check your inbox.");
+});
+
+$("phoneForm").onsubmit = event => {
+  event.preventDefault();
+
+  guarded(async () => {
+    if (!recaptcha) return toast("Wait for the verification widget.");
+
+    const phone = $("phone").value.replace(/[ ()-]/g, "");
+
+    try {
+      confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
+      $("smsSection").classList.remove("hidden");
+      $("smsCode").focus();
+      toast("Verification code sent.");
+    } catch (error) {
+      recaptcha.clear();
+      recaptcha = new RecaptchaVerifier(auth, "recaptcha", { size: "normal" });
+      await recaptcha.render();
+      throw error;
+    }
+  });
+};
+
+$("verifyButton").onclick = () => guarded(async () => {
+  if (!confirmation) return toast("Request a verification code first.");
+  await confirmation.confirm($("smsCode").value.trim());
+});
+
+$("logoutButton").onclick = () => {
+  if (room?.status === "active") {
+    confirmAction(
+      "Sign out?",
+      "Your clock will keep running. Signing out does not pause or resign the game.",
+      () => guarded(() => signOut(auth))
+    );
+  } else {
+    guarded(() => signOut(auth));
+  }
+};
+
+onAuthStateChanged(auth, currentUser => {
+  user = currentUser;
+
+  $("logoutButton").classList.toggle("hidden", !user);
+  $("accountName").textContent = user
+    ? user.email || user.phoneNumber || "Signed in"
+    : "";
+
+  if (!user) {
+    roomWatchVersion++;
+    roomUnsubscribe?.();
+    leaderboardUnsubscribe?.();
+    roomUnsubscribe = null;
+    leaderboardUnsubscribe = null;
+    room = null;
+    roomCode = "";
+    $("promotionDialog").close();
+    $("confirmDialog").close();
+    showScreen("authScreen");
+    return;
+  }
+
+  $("playerName").value = storageGet("crown-name") ||
+    user.displayName ||
+    user.email?.split("@")[0] ||
+    "Chess player";
+
+  showScreen("lobbyScreen");
+  watchLeaderboard();
+
+  const invite = new URL(location.href).searchParams.get("room");
+  if (invite) {
+    $("joinCode").value = invite.toUpperCase();
+    toast("Invitation loaded. Choose your player name, then press Join room.");
+  }
+});
+
+/* Lobby and standings */
+function nameForGame() {
+  const name = $("playerName").value.trim().slice(0, 24) || "Chess player";
+  storageSet("crown-name", name);
+  return name;
+}
+
+function watchLeaderboard() {
+  leaderboardUnsubscribe?.();
+
+  const standings = query(
+    collection(db, "profiles"),
+    orderBy("points", "desc"),
+    limit(10)
+  );
+
+  leaderboardUnsubscribe = onSnapshot(standings, snapshot => {
+    $("leaderboard").replaceChildren();
+
+    if (snapshot.empty) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 3;
+      td.textContent = "Finish a game to enter the standings.";
+      tr.append(td);
+      $("leaderboard").append(tr);
+      return;
+    }
+
+    snapshot.docs.forEach((document, index) => {
+      const profile = document.data();
+      const tr = document.createElement("tr");
+
+      for (const text of [
+        `${index + 1}. ${profile.name}`,
+        `${profile.wins} / ${profile.draws} / ${profile.losses}`,
+        String(profile.points)
+      ]) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        tr.append(td);
+      }
+
+      $("leaderboard").append(tr);
+    });
+  }, report);
+}
+
+$("createButton").onclick = () => guarded(async () => {
+  $("createButton").disabled = true;
+
+  try {
+    const response = await call("createRoom", {
+      name: nameForGame(),
+      control: $("control").value
+    });
+
+    openRoom(response.code);
+    toast("Room created. Share the invite link with your friend.");
+  } finally {
+    $("createButton").disabled = false;
+  }
+});
+
+async function joinRoom(code) {
+  const response = await call("joinRoom", {
+    code,
+    name: nameForGame()
+  });
+
+  openRoom(response.code);
+}
+
+$("joinButton").onclick = () => guarded(async () => {
+  $("joinButton").disabled = true;
+
+  try {
+    await joinRoom($("joinCode").value.trim().toUpperCase());
+  } finally {
+    $("joinButton").disabled = false;
+  }
+});
+
+$("reconnectButton").onclick = () => guarded(async () => {
+  const code = storageGet(`crown-room-${user.uid}`);
+  if (!code) return toast("No previous room found on this device.");
+  await joinRoom(code);
+});
+
+$("lobbyButton").onclick = () => {
+  if (room?.status === "active") {
+    confirmAction(
+      "Return to lobby?",
+      "The game stays active and your clock keeps running. Use Reconnect to return.",
+      () => showScreen("lobbyScreen")
+    );
+  } else showScreen("lobbyScreen");
+};
+
+$("copyButton").onclick = () => guarded(async () => {
+  const url = new URL(location.href);
+  url.searchParams.set("room", roomCode);
+
+  try {
+    await navigator.clipboard.writeText(url.href);
+    toast("Invitation copied. Send it to your friend.");
+  } catch {
+    window.prompt("Copy this invitation link:", url.href);
+  }
+});
+
+/* Room synchronization */
+function openRoom(code) {
+  roomUnsubscribe?.();
+
+  const watchVersion = ++roomWatchVersion;
+  roomCode = code;
+  room = null;
+  selected = null;
+  pending = false;
+
+  $("promotionDialog").close();
+  promotion = null;
+
+  storageSet(`crown-room-${user.uid}`, code);
+
+  $("roomCode").textContent = code;
+  $("status").textContent = "Connecting…";
+  $("statusText").textContent = "Loading the shared battlefield.";
+  showScreen("gameScreen");
+
+  roomUnsubscribe = onSnapshot(
+    doc(db, "rooms", code),
+    { includeMetadataChanges: true },
+    snapshot => {
+      if (watchVersion !== roomWatchVersion) return;
+      if (!snapshot.exists()) return toast("Room no longer exists.");
+
+      const next = snapshot.data();
+
+      $("connection").textContent = snapshot.metadata.fromCache
+        ? "Cached state · reconnecting. Clocks continue."
+        : "Live · server-validated moves";
+
+      const previous = room;
+      const freshMove = previous &&
+        previous.round === next.round &&
+        next.moves.length === previous.moves.length + 1;
+
+      room = next;
+      chess = new Chess(next.fen);
+      selected = null;
+
+      if (
+        promotion &&
+        (
+          next.status !== "active" ||
+          next.round !== promotion.round ||
+          next.moves.length !== promotion.ply
+        )
+      ) {
+        promotion = null;
+        $("promotionDialog").close();
+      }
+
+      renderHUD();
+
+      if (
+        freshMove &&
+        !snapshot.metadata.fromCache &&
+        !document.hidden &&
+        !$("gameScreen").classList.contains("hidden")
+      ) {
+        animationBusy = true;
+
+        animateMove(next.moves.at(-1)).finally(() => {
+          animationBusy = false;
+          // Render the latest room, even if another snapshot arrived meanwhile.
+          if (watchVersion === roomWatchVersion) renderBoard();
+        });
+      } else if (!animationBusy) {
+        renderBoard();
+      }
+    },
+    error => {
+      $("connection").textContent = "Connection error";
+      report(error);
+    }
+  );
+}
+
+/* Board */
+function renderBoard() {
+  if (!room) return;
+
+  const whiteView = mySide() === "w";
+  const ranks = whiteView ? [8,7,6,5,4,3,2,1] : [1,2,3,4,5,6,7,8];
+  const columns = whiteView ? [...files] : [...files].reverse();
+
+  boardSquares = ranks.flatMap(rank => columns.map(file => file + rank));
+  squareElements = new Map();
+
+  const legal = selected
+    ? chess.moves({ square: selected, verbose: true })
+    : [];
+
+  const last = room.moves.at(-1);
+  const fragment = document.createDocumentFragment();
+
+  boardSquares.forEach((square, index) => {
+    const piece = chess.get(square);
+    const possible = legal.filter(move => move.to === square);
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.tabIndex = -1;
+    button.setAttribute("role", "gridcell");
+    button.className = "square";
+
+    const fileIndex = files.indexOf(square[0]);
+    const rank = Number(square[1]);
+
+    if ((fileIndex + rank) % 2 === 1) button.classList.add("dark");
+    if (last && (last.from === square || last.to === square)) button.classList.add("last");
+    if (selected === square) button.classList.add("selected");
+    if (possible.length) button.classList.add("legal");
+    if (possible.some(move => move.captured)) button.classList.add("capture");
+    if (keyboardMode && cursor === index) button.classList.add("cursor");
+
+    if (
+      piece?.type === "k" &&
+      piece.color === chess.turn() &&
+      chess.isCheck()
+    ) {
+      button.classList.add("check");
+    }
+
+    button.setAttribute(
+      "aria-label",
+      `${square}${piece ? `, ${piece.color === "w" ? "white" : "black"} ${pieceNames[piece.type]}` : ", empty"}${possible.length ? ", legal destination" : ""}`
+    );
+
+    button.setAttribute("aria-selected", String(selected === square));
+
+    if (piece) {
+      const span = document.createElement("span");
+      span.className = "piece" + (piece.color === "b" ? " black" : "");
+      span.textContent = glyphs[piece.type];
+      span.setAttribute("aria-hidden", "true");
+      button.append(span);
+    }
+
+    const coordinate = document.createElement("span");
+    coordinate.className = "coord";
+    coordinate.textContent = square;
+    button.append(coordinate);
+
+    button.onclick = () => {
+      keyboardMode = false;
+      cursor = index;
+      unlockAudio();
+      chooseSquare(square);
+      if (!$("promotionDialog").open) {
+        $("board").focus({ preventScroll: true });
+      }
+    };
+
+    squareElements.set(square, button);
+    fragment.append(button);
+  });
+
+  $("board").replaceChildren(fragment);
+}
+
+function chooseSquare(square) {
+  if (!myTurn() || pending || animationBusy) return;
+
+  if (selected) {
+    const possible = chess.moves({
+      square: selected,
+      verbose: true
+    }).filter(move => move.to === square);
+
+    if (possible.length) {
+      if (possible.some(move => move.promotion)) {
+        promotion = {
+          from: selected,
+          to: square,
+          round: room.round,
+          ply: room.moves.length
+        };
+
+        $("promotionDialog").showModal();
+      } else {
+        submitMove(selected, square);
+      }
+
+      return;
+    }
+  }
+
+  const piece = chess.get(square);
+
+  selected = piece?.color === mySide()
+    ? selected === square ? null : square
+    : null;
+
+  if (selected) tone(540, .07, "sine", .025);
+
+  renderBoard();
+}
+
+async function submitMove(from, to, promotedPiece = "q") {
+  if (pending || !myTurn()) return;
+
+  pending = true;
+  selected = null;
+  renderBoard();
+
+  try {
+    await call("gameAction", {
+      code: roomCode,
+      action: "move",
+      from,
+      to,
+      promotion: promotedPiece,
+      expectedPly: room.moves.length,
+      round: room.round
+    });
+  } catch (error) {
+    report(error);
+  } finally {
+    pending = false;
+    renderHUD();
+    if (!animationBusy) renderBoard();
+  }
+}
+
+function choosePromotion(piece) {
+  if (!promotion) return;
+
+  const move = promotion;
+  promotion = null;
+  $("promotionDialog").close();
+
+  if (
+    room.round === move.round &&
+    room.moves.length === move.ply &&
+    myTurn()
+  ) {
+    submitMove(move.from, move.to, piece);
+  }
+
+  $("board").focus({ preventScroll: true });
+}
+
+document.querySelectorAll("[data-promotion]").forEach(button => {
+  button.onclick = () => choosePromotion(button.dataset.promotion);
+});
+
+$("promotionDialog").addEventListener("cancel", () => {
+  promotion = null;
+});
+
+document.addEventListener("keydown", event => {
+  if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+  const key = event.key.toLowerCase();
+
+  if ($("promotionDialog").open) {
+    if (["q","r","b","n"].includes(key)) {
+      event.preventDefault();
+      choosePromotion(key);
+    }
+    return;
+  }
+
+  if (document.activeElement !== $("board")) return;
+
+  if (key.startsWith("arrow")) {
+    event.preventDefault();
+    keyboardMode = true;
+
+    let r = Math.floor(cursor / 8);
+    let c = cursor % 8;
+
+    if (key === "arrowup") r--;
+    if (key === "arrowdown") r++;
+    if (key === "arrowleft") c--;
+    if (key === "arrowright") c++;
+
+    r = Math.max(0, Math.min(7, r));
+    c = Math.max(0, Math.min(7, c));
+    cursor = r * 8 + c;
+
+    renderBoard();
+  } else if (key === "enter" || key === " ") {
+    event.preventDefault();
+    unlockAudio();
+    chooseSquare(boardSquares[cursor]);
+  } else if (key === "escape") {
+    selected = null;
+    renderBoard();
+  }
+});
+
+/* HUD and actions */
+function renderHUD() {
+  if (!room) return;
+
+  const own = mySide();
+  const opponent = own === "w" ? "b" : "w";
+  const player = side => side === "w" ? room.white : room.black;
+
+  $("topName").textContent = player(opponent)?.name || "Waiting for your friend…";
+  $("bottomName").textContent = (player(own)?.name || "You") + " · You";
+
+  $("topLabel").textContent = opponent === "w" ? "White" : "Black";
+  $("bottomLabel").textContent = own === "w" ? "White" : "Black";
+  $("controlLabel").textContent = `${room.controlName} · Round ${room.round}`;
+
+  $("activeActions").classList.toggle("hidden", room.status !== "active");
+  $("finishedActions").classList.toggle("hidden", room.status !== "finished");
+
+  const incomingDraw = room.status === "active" &&
+    room.drawOffer &&
+    room.drawOffer !== user.uid;
+
+  $("drawActions").classList.toggle("hidden", !incomingDraw);
+
+  $("drawButton").disabled = room.drawOffer === user.uid;
+  $("drawButton").textContent = room.drawOffer === user.uid
+    ? "Draw offered"
+    : "Offer draw";
+
+  if (room.status === "waiting") {
+    $("status").textContent = "Invite your rival";
+    $("statusText").textContent = "Share the room link. White’s clock starts when your friend joins.";
+  } else if (room.status === "finished") {
+    const result = room.result;
+
+    $("status").textContent = result.winner === null
+      ? "Honorable draw"
+      : result.winner === own
+        ? "Victory is yours"
+        : "A kingdom falls";
+
+    $("statusText").textContent = `${result.notation} · ${result.reason}`;
+
+    const voted = room.rematchVotes.includes(user.uid);
+    $("rematchButton").disabled = voted;
+    $("rematchButton").textContent = voted
+      ? "Waiting for friend…"
+      : room.rematchVotes.length
+        ? "Accept rematch →"
+        : "Rematch · swap colors";
+  } else {
+    $("status").textContent = pending
+      ? "Sending move…"
+      : myTurn()
+        ? chess.isCheck() ? "Your king is in check!" : "Your move"
+        : chess.isCheck() ? "Opponent in check" : "Your friend’s turn";
+
+    $("statusText").textContent = myTurn()
+      ? "Select a piece, then a glowing square."
+      : "Plan your reply. The clock is running.";
+  }
+
+  const lines = [];
+
+  for (let i = 0; i < room.moves.length; i += 2) {
+    lines.push(
+      `${String(i / 2 + 1).padStart(2, " ")}. ` +
+      room.moves[i].san.padEnd(9, " ") +
+      (room.moves[i + 1]?.san || "")
+    );
+  }
+
+  $("moveLog").textContent = lines.join("\n") || "The opening awaits.";
+  $("moveLog").scrollTop = $("moveLog").scrollHeight;
+}
+
+function action(actionName) {
+  return guarded(() => call("gameAction", {
+    code: roomCode,
+    action: actionName
+  }));
+}
+
+$("drawButton").onclick = () => action("offerDraw");
+$("acceptDraw").onclick = () => action("acceptDraw");
+$("declineDraw").onclick = () => action("declineDraw");
+$("rematchButton").onclick = () => action("rematch");
+
+$("resignButton").onclick = () => {
+  confirmAction(
+    "Resign this game?",
+    "Your opponent receives 1 point. You can request a rematch immediately afterward.",
+    () => action("resign")
+  );
+};
+
+let onConfirm = null;
+
+function confirmAction(title, text, callback) {
+  $("confirmTitle").textContent = title;
+  $("confirmText").textContent = text;
+  onConfirm = callback;
+  $("confirmDialog").showModal();
+}
+
+$("confirmCancel").onclick = () => {
+  onConfirm = null;
+  $("confirmDialog").close();
+};
+
+$("confirmOK").onclick = () => {
+  const callback = onConfirm;
+  onConfirm = null;
+  $("confirmDialog").close();
+  callback?.();
+};
+
+/* Synchronized clock display */
+function remainingTime(side) {
+  if (!room) return 0;
+
+  let ms = room[side === "w" ? "whiteMs" : "blackMs"];
+
+  if (room.status === "active" && room.turn === side) {
+    ms -= Math.max(
+      0,
+      Date.now() + serverOffset - room.turnStartedAt
+    );
+  }
+
+  return Math.max(0, ms);
+}
+
+function formatClock(ms) {
+  if (ms < 10000) return (ms / 1000).toFixed(1);
+
+  const seconds = Math.ceil(ms / 1000);
+
+  return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:` +
+    String(seconds % 60).padStart(2, "0");
+}
+
+setInterval(() => {
+  if (!room || !user) return;
+
+  const own = mySide();
+
+  for (const [id, side] of [
+    ["bottomClock", own],
+    ["topClock", own === "w" ? "b" : "w"]
+  ]) {
+    const ms = remainingTime(side);
+    const element = $(id);
+    const text = formatClock(ms);
+
+    if (element.textContent !== text) element.textContent = text;
+
+    element.classList.toggle(
+      "active",
+      room.status === "active" && room.turn === side
+    );
+
+    element.classList.toggle(
+      "low",
+      room.status === "active" && ms < 10000
+    );
+  }
+
+  if (
+    room.status === "active" &&
+    remainingTime(room.turn) <= 0 &&
+    Date.now() - lastFlagCheck > 3000 &&
+    navigator.onLine
+  ) {
+    lastFlagCheck = Date.now();
+
+    // Either player may ask the server to adjudicate expiration.
+    // Client display reaching zero does not itself award a win.
+    call("gameAction", {
+      code: roomCode,
+      action: "flag"
+    }).catch(error => console.debug("Clock check:", error.message));
+  }
+}, 100);
+
+/* Audio */
+function unlockAudio() {
+  if (!soundEnabled) return;
+
+  try {
+    audio ||= new (window.AudioContext || window.webkitAudioContext)();
+    audio.resume().catch(() => {});
+  } catch {}
+}
+
+function tone(frequency, duration, type = "triangle", volume = .05, end = null) {
+  if (!soundEnabled || !audio || audio.state !== "running") return;
+
+  const oscillator = audio.createOscillator();
+  const gain = audio.createGain();
+  const now = audio.currentTime;
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, now);
+
+  if (end) {
+    oscillator.frequency.exponentialRampToValueAtTime(end, now + duration);
+  }
+
+  gain.gain.setValueAtTime(.0001, now);
+  gain.gain.exponentialRampToValueAtTime(volume, now + .008);
+  gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+
+  oscillator.connect(gain);
+  gain.connect(audio.destination);
+
+  oscillator.start(now);
+  oscillator.stop(now + duration + .02);
+}
+
+$("soundButton").onclick = () => {
+  soundEnabled = !soundEnabled;
+  $("soundButton").textContent = soundEnabled ? "♪ On" : "♪ Off";
+  $("soundButton").setAttribute("aria-pressed", String(soundEnabled));
+
+  if (soundEnabled) {
+    unlockAudio();
+    tone(550, .1);
+  }
+};
+
+document.addEventListener("pointerdown", unlockAudio, { passive: true });
+
+/* Move and capture animation */
+async function animateMove(move) {
+  const fromElement = squareElements.get(move.from);
+  const toElement = squareElements.get(move.to);
+
+  if (!fromElement || !toElement) return;
+
+  const from = fromElement.getBoundingClientRect();
+  const to = toElement.getBoundingClientRect();
+  const original = fromElement.querySelector(".piece");
+
+  const victimSquare = move.captured && move.piece === "p" &&
+    move.from[0] !== move.to[0] &&
+    !toElement.querySelector(".piece")
+      ? move.to[0] + move.from[1]
+      : move.to;
+
+  const victim = squareElements.get(victimSquare)?.querySelector(".piece");
+
+  const ghost = document.createElement("div");
+  ghost.className = "flying-piece";
+  ghost.textContent = glyphs[move.piece];
+  ghost.style.width = from.width + "px";
+  ghost.style.height = from.height + "px";
+  ghost.style.fontSize = from.width * .88 + "px";
+  ghost.style.color = move.color === "w" ? "#efd08a" : "#83bbcc";
+
+  document.body.append(ghost);
+  if (original) original.style.visibility = "hidden";
+
+  const dx = to.left - from.left;
+  const dy = to.top - from.top;
+  const direction = dx >= 0 ? 1 : -1;
+  const duration = reducedMotion ? 70 : move.captured ? 490 : 210;
+
+  const animation = ghost.animate([
+    {
+      transform: `translate(${from.left}px, ${from.top}px) rotate(0deg)`
+    },
+    {
+      offset: .68,
+      transform: `translate(${from.left + dx * .92}px, ${from.top + dy * .92 - (reducedMotion ? 0 : 15)}px) rotate(${-direction * 16}deg) scale(1.08)`
+    },
+    {
+      transform: `translate(${to.left}px, ${to.top}px) rotate(0deg)`
+    }
+  ], {
+    duration,
+    easing: "cubic-bezier(.2,.7,.3,1)",
+    fill: "forwards"
+  });
+
+  if (move.captured) {
+    await new Promise(resolve => setTimeout(resolve, duration * .63));
+
+    if (victim) {
+      victim.animate([
+        { opacity: 1, transform: "translateZ(12px) rotate(0deg)" },
+        {
+          opacity: 0,
+          transform: `translate(${direction * 35}px, -15px) rotate(${direction * 70}deg) scale(.4)`
+        }
+      ], {
+        duration: duration * .37,
+        fill: "forwards"
+      });
+    }
+
+    burst(to.left + to.width / 2, to.top + to.height / 2);
+
+    tone(140, .25, "sawtooth", .065, 38);
+    tone(1400, .17, "triangle", .04, 220);
+
+    if (!reducedMotion) {
+      $("arena").classList.remove("shake");
+      void $("arena").offsetWidth;
+      $("arena").classList.add("shake");
+      setTimeout(() => $("arena").classList.remove("shake"), 280);
+    }
+  } else {
+    tone(220, .13, "triangle", .04, 100);
+  }
+
+  try { await animation.finished; } catch {}
+  ghost.remove();
+}
+
+/* Canvas effects: render only while particles exist. */
+const canvas = $("fx");
+const context = canvas.getContext("2d");
+let particles = [];
+let effectFrame = null;
+let previousEffectTime = 0;
+
+function resizeCanvas() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  canvas.width = innerWidth * dpr;
+  canvas.height = innerHeight * dpr;
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function burst(x, y) {
+  const count = reducedMotion ? 6 : 34;
+
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 65 + Math.random() * 240;
+
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 50,
+      age: 0,
+      life: .35 + Math.random() * .35,
+      color: ["#ffeab4", "#efd08a", "#94e4ef"][i % 3]
+    });
+  }
+
+  if (!effectFrame) {
+    previousEffectTime = performance.now();
+    effectFrame = requestAnimationFrame(drawEffects);
+  }
+}
+
+function drawEffects(now) {
+  const dt = Math.min((now - previousEffectTime) / 1000, .04);
+  previousEffectTime = now;
+
+  context.clearRect(0, 0, innerWidth, innerHeight);
+
+  particles = particles.filter(particle => {
+    particle.age += dt;
+    if (particle.age >= particle.life) return false;
+
+    particle.x += particle.vx * dt;
+    particle.y += particle.vy * dt;
+    particle.vy += 300 * dt;
+
+    context.globalAlpha = 1 - particle.age / particle.life;
+    context.strokeStyle = particle.color;
+    context.lineWidth = 2.5;
+    context.beginPath();
+    context.moveTo(particle.x, particle.y);
+    context.lineTo(
+      particle.x - particle.vx * .024,
+      particle.y - particle.vy * .024
+    );
+    context.stroke();
+
+    return true;
+  });
+
+  context.globalAlpha = 1;
+
+  if (particles.length) {
+    effectFrame = requestAnimationFrame(drawEffects);
+  } else {
+    context.clearRect(0, 0, innerWidth, innerHeight);
+    effectFrame = null;
+  }
+}
+</script>
+</body>
+</html>

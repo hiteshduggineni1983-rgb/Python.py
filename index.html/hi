@@ -13,7 +13,7 @@
   --panel: #151f2e;
   --border: #304158;
   --gold: #efd08a;
-  --cyan: #82d9e8;
+  --cyan: #24acc5;
   --text: #edf2fa;
   --muted: #98a9bf;
 }
